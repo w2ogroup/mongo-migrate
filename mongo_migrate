@@ -76,7 +76,7 @@ check_migration() {
 generate() {
     echo "Generating migration ${1}"
     local file=`generate_migration_file_name ${1}`
-    cp template/migration_template.js $MIGRATION_DIR$file
+    cp $SCRIPT_DIR/template/migration_template.js $MIGRATION_DIR$file
     echo "Migration ${MIGRATION_DIR}${file} generated"
 }
 
@@ -118,18 +118,18 @@ run_migration() {
 get_current_migration() {
     if [ -z $MONGO_USR ];
     then
-        echo "`mongo $MONGO_HOST/$MONGO_DATABASE --quiet ./get_current.js`"
+        echo "`mongo $MONGO_HOST/$MONGO_DATABASE --quiet $SCRIPT_DIR/get_current.js`"
     else
-        echo "`mongo $MONGO_HOST/$MONGO_DATABASE -u $MONGO_USR -p $MONGO_PWD --quiet ./get_current.js`"
+        echo "`mongo $MONGO_HOST/$MONGO_DATABASE -u $MONGO_USR -p $MONGO_PWD --quiet $SCRIPT_DIR/get_current.js`"
     fi
 }
 
 update_current_migration() {
     if [ -z $MONGO_USR ];
     then
-        mongo $MONGO_HOST/$MONGO_DATABASE --quiet --eval "current='${1}'" ./update_current.js
+        mongo $MONGO_HOST/$MONGO_DATABASE --quiet --eval "current='${1}'" $SCRIPT_DIR/update_current.js
     else
-        mongo $MONGO_HOST/$MONGO_DATABASE -u $MONGO_USR -p $MONGO_PWD --quiet --eval "current='${1}'" ./update_current.js
+        mongo $MONGO_HOST/$MONGO_DATABASE -u $MONGO_USR -p $MONGO_PWD --quiet --eval "current='${1}'" $SCRIPT_DIR/update_current.js
     fi
 }
 
@@ -211,6 +211,10 @@ MIGRATION_DIR=${MIGRATION_DIR%/}/
 
 #Check migration dir
 ensure_migration_dir
+
+# Set the directory of this script so we can reference other script resources
+# See http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Script running flow
 if [ $GENERATE ]; then
