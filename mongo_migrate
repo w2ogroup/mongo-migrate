@@ -135,7 +135,7 @@ update_current_migration() {
 
 all_up() {
     local current_migration=`get_current_migration|bc`
-
+    echo "Target database currently at:" $current_migration
     local migrations="$(find $MIGRATION_DIR -name \*.js |sort -n)"
     for migration in $migrations
     do
@@ -149,7 +149,7 @@ all_up() {
 
 all_down() {
     local current_migration=`get_current_migration|bc`
-
+    echo "Target database currently at:" $current_migration
     local migrations="$(find $MIGRATION_DIR -name \*.js |sort -nr)"
     for migration in $migrations
     do
