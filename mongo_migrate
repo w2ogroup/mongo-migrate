@@ -135,7 +135,9 @@ update_current_migration() {
 
 all_up() {
     local current_migration=`get_current_migration|bc`
-    echo "Target database currently at:" $current_migration
+    if [ $VERBOSE ]; then
+        echo "Target database currently at:" $current_migration
+    fi
     local migrations="$(find $MIGRATION_DIR -name \*.js |sort -n)"
     for migration in $migrations
     do
@@ -149,7 +151,9 @@ all_up() {
 
 all_down() {
     local current_migration=`get_current_migration|bc`
-    echo "Target database currently at:" $current_migration
+    if [ $VERBOSE ]; then
+        echo "Target database currently at:" $current_migration
+    fi
     local migrations="$(find $MIGRATION_DIR -name \*.js |sort -nr)"
     for migration in $migrations
     do
@@ -174,6 +178,15 @@ run_all() {
     fi
 }
 
+print_config() {
+    local configPath=$1
+    echo "CONFIG: Using config file $configPath"
+    cat $configPath | while read line
+    do
+        echo "CONFIG: $line"
+    done
+}
+
 ## SCRIPT RUN
 
 #Convention configs
@@ -182,7 +195,7 @@ MIGRATION_DIR="db/migrate/"
 CONFIG_PATH=./config.cfg
 
 #Parameter extraction
-while getopts "hf:c:t:gr" OPT; do
+while getopts "hf:c:t:grv" OPT; do
   case "$OPT" in
   "h") usage;; # exibir ajuda
   "f") FILE_NAME=$OPTARG;;
@@ -190,6 +203,7 @@ while getopts "hf:c:t:gr" OPT; do
   "g") GENERATE=true;;
   "r") RUN=true;;
   "t") TARGET=$OPTARG;;
+  "v") VERBOSE=true;;
   "?") exit -1;;
   esac
   done
@@ -204,6 +218,10 @@ while getopts "hf:c:t:gr" OPT; do
 if [ -r $CONFIG_PATH ];
 then
     source $CONFIG_PATH
+fi
+
+if [ $VERBOSE ]; then
+    print_config $CONFIG_PATH
 fi
 
 #ensure trailing slash on MIGRATION_DIR
